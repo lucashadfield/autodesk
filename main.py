@@ -9,10 +9,7 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-SCOPES = [
-    'https://www.googleapis.com/auth/calendar.events.owned.readonly',
-    'https://www.googleapis.com/auth/calendar.readonly',
-]
+SCOPES = ['https://www.googleapis.com/auth/calendar.events.readonly']
 
 
 def get_service(credentials_path: Path, token_path: Path):
@@ -60,7 +57,7 @@ def get_calendar_events(service, timezone: str, calendar_id: str):
 
 
 def calculate_trigger_times(
-    events, timezone, end_threshold_seconds, trigger_offset_seconds
+    events: dict, timezone: str, end_threshold_seconds: int, trigger_offset_seconds: int
 ):
     trigger_times = []
     prev_end_time = None
@@ -78,15 +75,15 @@ def calculate_trigger_times(
     return trigger_times
 
 
-def backup_cron(cron_backup_path):
+def backup_cron(cron_backup_path: str):
     os.system(f'crontab -l > {cron_backup_path}')
 
 
-def restore_cron(cron_backup_path):
+def restore_cron(cron_backup_path: str):
     os.system(f'crontab {cron_backup_path}')
 
 
-def datetime_to_cron(dt):
+def datetime_to_cron(dt: datetime.datetime):
     return f'{dt.minute} {dt.hour} {dt.day} {dt.month} {dt.isoweekday()}'
 
 
@@ -111,20 +108,18 @@ def append_cron_jobs(trigger_times, cron_backup_path, cron_delimiter, trigger_sc
 
 def main():
     # config
-    credentials_path = '~/.config/autodesk/client_secret.json' # google api credentials
-    token_path = '~/.config/autodesk/token.pickle' # google api token
-    timezone = 'Australia/Sydney' # timezone of the machine running cron
-    calendar_id = 'name@domain.xyz' # name of the calendar to fetch
+    credentials_path = '~/.config/autodesk/client_secret.json'  # google api credentials
+    token_path = '~/.config/autodesk/token.pickle'  # google api token
+    timezone = 'Australia/Sydney'  # timezone of the machine running cron
+    calendar_id = 'name@domain.xyz'  # name of the calendar to fetch
     end_threshold_seconds = 600  # if previous meeting ends within 600 seconds of this one, don't raise
     trigger_offset_seconds = 60  # how many seconds before the start of the meeting should the desk raise
-    cron_delimiter = '# Desk Actions\n' # replace everything below this line in cron with the updated jobs
-    trigger_script = 'python /home/user/autodesk/desk_trigger.py' # cron command
-    cron_backup_path = '/tmp/crontab.bak' # where to backup cron file for editing
+    cron_delimiter = '# Desk Actions\n'  # replace everything below this line in cron with the updated jobs
+    trigger_script = 'python /home/user/autodesk/desk_trigger.py'  # cron command
+    cron_backup_path = '/tmp/crontab.bak'  # where to backup cron file for editing
 
     # get calendar service
-    service = get_service(
-        Path(credentials_path).expanduser(), Path(token_path).expanduser()
-    )
+    service = get_service(Path(credentials_path).expanduser(), Path(token_path).expanduser())
 
     # get today's calendar events
     events = get_calendar_events(service, timezone, calendar_id)
