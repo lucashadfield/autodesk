@@ -99,7 +99,7 @@ def append_cron_jobs(trigger_times, cron_backup_path, cron_delimiter, trigger_sc
             cron[:i]
             + [cron_delimiter]
             + [
-                f'{datetime_to_cron(t)} {Path(trigger_script).expanduser()}\n'
+                f'{datetime_to_cron(t)} {trigger_script}\n'
                 for t in trigger_times
             ]
         )
