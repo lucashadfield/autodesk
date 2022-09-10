@@ -1,8 +1,14 @@
-from gpiozero import LED
+import RPi.GPIO as GPIO
 from time import sleep
 
-desk = LED(17)
+DESK_PIN = 17
 
-desk.on()
-sleep(0.25)
-desk.off()
+try:
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(DESK_PIN, GPIO.OUT)
+
+    GPIO.output(DESK_PIN, GPIO.HIGH)
+    sleep(0.25)
+    GPIO.output(DESK_PIN, GPIO.LOW)
+finally:
+    GPIO.cleanup()
