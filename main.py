@@ -111,11 +111,11 @@ def main():
     credentials_path = '~/.config/autodesk/client_secret.json'  # google api credentials
     token_path = '~/.config/autodesk/token.pickle'  # google api token
     timezone = 'Australia/Sydney'  # timezone of the machine running cron
-    calendar_id = 'name@domain.xyz'  # name of the calendar to fetch
+    calendar_id = 'Calendar Name'  # name of the calendar to fetch (could be email address if it's a shared calendar)
     end_threshold_seconds = 600  # if previous meeting ends within 600 seconds of this one, don't raise
     trigger_offset_seconds = 60  # how many seconds before the start of the meeting should the desk raise
     cron_delimiter = '# Desk Actions\n'  # replace everything below this line in cron with the updated jobs
-    trigger_script = 'python /home/user/autodesk/desk_trigger.py'  # cron command
+    trigger_script = 'python /home/user/autodesk/trigger.py'  # cron command
     cron_backup_path = '/tmp/crontab.bak'  # where to backup cron file for editing
 
     # get calendar service
