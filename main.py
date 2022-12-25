@@ -102,8 +102,6 @@ def main():
     with open(Path(config_path).expanduser(), 'r') as f:
         config = yaml.safe_load(f)
 
-    print(config)
-
     # get calendar service
     service = get_service(Path(config['credentials_path']).expanduser(), Path(config['token_path']).expanduser())
 
