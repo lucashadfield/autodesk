@@ -2,6 +2,7 @@ import datetime
 import os
 import pickle
 from pathlib import Path
+import yaml
 
 import pytz
 from dateutil.parser import parse
@@ -63,7 +64,7 @@ def calculate_trigger_times(
         if (
             prev_end_time is None
             or (start_time - prev_end_time).total_seconds() >= end_threshold_seconds
-            or (end_time - start_time) <= max_meeting_standing_time
+            or (end_time - start_time).total_seconds() <= max_meeting_standing_time
         ):
             trigger_times.append(
                 start_time.astimezone(pytz.timezone(timezone)) - datetime.timedelta(seconds=trigger_offset_seconds)
@@ -97,37 +98,35 @@ def append_cron_jobs(trigger_times, cron_backup_path, cron_delimiter, trigger_sc
 
 
 def main():
-    # config
-    credentials_path = '~/.config/autodesk/client_secret.json'  # google api credentials
-    token_path = '~/.config/autodesk/token.pickle'  # google api token
-    timezone = 'Australia/Sydney'  # timezone of the machine running cron
-    calendar_id = 'Calendar Name'  # name of the calendar to fetch (could be email address if it's a shared calendar)
-    end_threshold_seconds = 600  # if previous meeting ends within 600 seconds of this one, don't raise
-    max_meeting_standing_time = 3600  # don't raise if meeting is longer than this
-    trigger_offset_seconds = 60  # how many seconds before the start of the meeting should the desk raise
-    cron_delimiter = '# Desk Actions\n'  # replace everything below this line in cron with the updated jobs
-    trigger_script = 'python /home/user/autodesk/trigger.py'  # cron command
-    cron_backup_path = '/tmp/crontab.bak'  # where to backup cron file for editing
+    config_path = '~/.config/autodesk/config.yaml'
+    with open(Path(config_path).expanduser(), 'r') as f:
+        config = yaml.safe_load(f)
+
+    print(config)
 
     # get calendar service
-    service = get_service(Path(credentials_path).expanduser(), Path(token_path).expanduser())
+    service = get_service(Path(config['credentials_path']).expanduser(), Path(config['token_path']).expanduser())
 
     # get today's calendar events
-    events = get_calendar_events(service, timezone, calendar_id)
+    events = get_calendar_events(service, config['timezone'], config['calendar_id'])
 
     # work out when we should trigger based on those event times
     trigger_times = calculate_trigger_times(
-        events, timezone, end_threshold_seconds, trigger_offset_seconds, max_meeting_standing_time
+        events,
+        config['timezone'],
+        config['end_threshold_seconds'],
+        config['trigger_offset_seconds'],
+        config['max_meeting_standing_time'],
     )
 
     # backup cron to file
-    backup_cron(cron_backup_path)
+    backup_cron(config['cron_backup_path'])
 
     # write new cron jobs
-    append_cron_jobs(trigger_times, cron_backup_path, cron_delimiter, trigger_script)
+    append_cron_jobs(trigger_times, config['cron_backup_path'], config['cron_delimiter'], config['trigger_script'])
 
     # restore cron from file
-    restore_cron(cron_backup_path)
+    restore_cron(config['cron_backup_path'])
 
 
 if __name__ == '__main__':
