@@ -15,7 +15,7 @@
     - Save .json to ~/.config/autodesk/client_secrets.json
   - OAuth consent screen
     - Add user to "Test users"
-2. edit config params in `main.py` -> `main()`
+2. copy `example_config.yaml` to `~/.config/autodesk/config.yaml` and update parameters
 3. edit trigger Pin id in `trigger.py`
 4. run main.py, complete auth flow in browser
 5. move `client_secrets.json` and `token.pickle` to raspberry pi
