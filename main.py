@@ -93,7 +93,9 @@ def append_cron_jobs(trigger_times, cron_backup_path, cron_delimiter, trigger_sc
                 break
 
     with open(cron_backup_path, 'w') as f:
-        cron_append = cron[:i] + [cron_delimiter] + [f'{datetime_to_cron(t)} {trigger_script}\n' for t in trigger_times]
+        cron_append = (
+            cron[:i] + [f'{cron_delimiter}\n'] + [f'{datetime_to_cron(t)} {trigger_script}\n' for t in trigger_times]
+        )
         f.writelines(cron_append)
 
 

@@ -6,6 +6,6 @@ calendar_id: 'name@domain.xyz'  # name of the calendar to fetch
 end_threshold_seconds: 600  # if previous meeting ends within 600 seconds of this one, don't raise
 max_meeting_standing_time: 3600 # don't raise if meeting is longer than this
 trigger_offset_seconds: 60  # how many seconds before the start of the meeting should the desk raise
-cron_delimiter: '# Desk Actions\n'  # replace everything below this line in cron with the updated jobs
+cron_delimiter: '# Desk Actions'  # replace everything below this line in cron with the updated jobs
 trigger_script: 'python /home/pi/autodesk/trigger.py'  # cron command
 cron_backup_path: '/tmp/crontab.bak'  # where to backup cron file for editing
