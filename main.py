@@ -89,7 +89,7 @@ def append_cron_jobs(trigger_times, cron_backup_path, cron_delimiter, trigger_sc
     with open(cron_backup_path, 'r') as f:
         cron = f.readlines()
         for i, c in enumerate(cron):
-            if c == cron_delimiter:
+            if c == f'{cron_delimiter}\n':
                 break
 
     with open(cron_backup_path, 'w') as f:
