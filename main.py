@@ -61,10 +61,11 @@ def calculate_trigger_times(
     for event in events['items']:
         start_time = parse(event['start']['dateTime'])
         end_time = parse(event['end']['dateTime'])
+        if (end_time - start_time).total_seconds() > max_meeting_standing_time:
+            continue
         if (
             prev_end_time is None
             or (start_time - prev_end_time).total_seconds() >= end_threshold_seconds
-            or (end_time - start_time).total_seconds() <= max_meeting_standing_time
         ):
             trigger_times.append(
                 start_time.astimezone(pytz.timezone(timezone)) - datetime.timedelta(seconds=trigger_offset_seconds)
