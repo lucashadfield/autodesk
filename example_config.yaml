@@ -1,4 +1,5 @@
 # edit and copy to ~/.config/autodesk/config.yaml
+enabled: true
 credentials_path: '~/.config/autodesk/client_secret.json'  # google api credentials
 token_path: '~/.config/autodesk/token.pickle'  # google api token
 timezone: 'Australia/Sydney'  # timezone of the machine running cron
