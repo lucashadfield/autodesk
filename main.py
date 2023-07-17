@@ -2,6 +2,8 @@ import datetime
 import os
 import pickle
 from pathlib import Path
+from typing import List
+
 import yaml
 
 import pytz
@@ -54,19 +56,33 @@ def get_calendar_events(service, timezone: str, calendar_id: str):
 
 
 def calculate_trigger_times(
-    events: dict, timezone: str, end_threshold_seconds: int, trigger_offset_seconds: int, max_meeting_standing_time: int
+        events: dict,
+        timezone: str,
+        end_threshold_seconds: int,
+        trigger_offset_seconds: int,
+        max_meeting_standing_time: int,
+        ignore_times: List[str],
 ):
+    ignore_times = [datetime.time(t) for t in ignore_times]
     trigger_times = []
     prev_end_time = None
     for event in events['items']:
         start_time = parse(event['start']['dateTime'])
         end_time = parse(event['end']['dateTime'])
         if (end_time - start_time).total_seconds() > max_meeting_standing_time:
+            # don't trigger for long meetings
             continue
+
+        if start_time.time in ignore_times:
+            # don't trigger for meetings at ignored times
+            continue
+
         if (
             prev_end_time is None
             or (start_time - prev_end_time).total_seconds() >= end_threshold_seconds
         ):
+            # trigger if there was no meeting before
+            # or the time since the last meeting was >= end_threshold_seconds
             trigger_times.append(
                 start_time.astimezone(pytz.timezone(timezone)) - datetime.timedelta(seconds=trigger_offset_seconds)
             )
@@ -121,6 +137,7 @@ def main():
         config['end_threshold_seconds'],
         config['trigger_offset_seconds'],
         config['max_meeting_standing_time'],
+        config['ignore_times'],
     )
 
     # backup cron to file

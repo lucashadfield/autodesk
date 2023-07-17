@@ -10,3 +10,4 @@ trigger_offset_seconds: 60  # how many seconds before the start of the meeting s
 cron_delimiter: '# Desk Actions'  # replace everything below this line in cron with the updated jobs
 trigger_script: 'python /home/pi/autodesk/trigger.py'  # cron command
 cron_backup_path: '/tmp/crontab.bak'  # where to backup cron file for editing
+ignore_times: ['12:00'] # don't raise for any meeting starting at this time
