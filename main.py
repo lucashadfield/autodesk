@@ -63,7 +63,7 @@ def calculate_trigger_times(
         max_meeting_standing_time: int,
         ignore_times: List[str],
 ):
-    ignore_times = [datetime.time(t) for t in ignore_times]
+    ignore_times = [datetime.datetime.strptime(t, "%H:%M").time() for t in ignore_times]
     trigger_times = []
     prev_end_time = None
     for event in events['items']:
