@@ -54,6 +54,9 @@ def get_calendar_events(service, timezone: str, calendar_id: str):
         .execute()
     )
 
+def parse_datetime(dt: str, tz: str):
+    return parse(dt).astimezone(pytz.timezone(tz))
+
 
 def calculate_trigger_times(
         events: dict,
@@ -67,13 +70,13 @@ def calculate_trigger_times(
     trigger_times = []
     prev_end_time = None
     for event in events['items']:
-        start_time = parse(event['start']['dateTime'])
-        end_time = parse(event['end']['dateTime'])
+        start_time = parse_datetime(event['start']['dateTime'], timezone)
+        end_time = parse_datetime(event['end']['dateTime'], timezone)
         if (end_time - start_time).total_seconds() > max_meeting_standing_time:
             # don't trigger for long meetings
             continue
 
-        if start_time.time in ignore_times:
+        if start_time.time() in ignore_times:
             # don't trigger for meetings at ignored times
             continue
 
@@ -84,9 +87,9 @@ def calculate_trigger_times(
             # trigger if there was no meeting before
             # or the time since the last meeting was >= end_threshold_seconds
             trigger_times.append(
-                start_time.astimezone(pytz.timezone(timezone)) - datetime.timedelta(seconds=trigger_offset_seconds)
+                start_time - datetime.timedelta(seconds=trigger_offset_seconds)
             )
-        prev_end_time = parse(event['end']['dateTime'])
+        prev_end_time = parse_datetime(event['end']['dateTime'], timezone)
     return trigger_times
 
 
